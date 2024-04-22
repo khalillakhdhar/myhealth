@@ -1,7 +1,9 @@
-import { initializeApp } from "firebase/app";
-import { getFirestore } from "firebase/firestore";
-import { getAuth } from "firebase/auth";
 
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { initializeApp } from 'firebase/app';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
+
+import { getFirestore } from 'firebase/firestore';
 const firebaseConfig = {
     apiKey: "AIzaSyBqUmYO3KznEJaSzfHkwh3ULX-LNoR8f1c",
     authDomain: "medical-dd248.firebaseapp.com",
@@ -12,9 +14,34 @@ const firebaseConfig = {
     measurementId: "G-KK8QYSE6NS"
 };
 
+
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
-
-const db = getFirestore(app);
 const auth = getAuth(app);
+const db = getFirestore(app);
+// Function to store user data
+const storeUserData = async (user) => {
+  await AsyncStorage.setItem('user', JSON.stringify(user));
+};
 
-export { db, auth };
+// Function to load user data
+const loadUserData = async () => {
+  const userJson = await AsyncStorage.getItem('user');
+  return userJson ? JSON.parse(userJson) : null;
+};
+
+// Auth State Change Listener
+onAuthStateChanged(auth, async (user) => {
+  if (user) {
+    // User is signed in
+    await storeUserData(user);
+    console.log('User signed in');
+  } else {
+    // User is signed out
+    console.log('User signed out');
+    await AsyncStorage.removeItem('user');
+  }
+});
+
+export { auth, db };
+
