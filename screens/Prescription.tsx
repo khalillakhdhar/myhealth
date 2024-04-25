@@ -1,6 +1,8 @@
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { addDoc, collection, deleteDoc, doc, onSnapshot, orderBy, query, where } from 'firebase/firestore';
 import React, { useEffect, useState } from 'react';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 import { Alert, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import Colors from '../constants/Colors';
 import { auth, db } from '../firebase/firebase';
@@ -11,8 +13,7 @@ export default function Prescription() {
   const [startDate, setStartDate] = useState(new Date());
   const [endDate, setEndDate] = useState(new Date());
   const [description, setDescription] = useState('');
-  const [showStartDatePicker, setShowStartDatePicker] = useState(false);
-  const [showEndDatePicker, setShowEndDatePicker] = useState(false);
+  const [showDatePicker, setShowDatePicker] = useState({ start: false, end: false });
   const user = auth.currentUser;
 
   useEffect(() => {
@@ -28,12 +29,11 @@ export default function Prescription() {
 
   const handleDateChange = (event, selectedDate, type) => {
     const currentDate = selectedDate || (type === 'start' ? startDate : endDate);
+    setShowDatePicker(prev => ({ ...prev, [type]: false }));
     if (type === 'start') {
       setStartDate(currentDate);
-      setShowStartDatePicker(Platform.OS === 'ios');
     } else {
       setEndDate(currentDate);
-      setShowEndDatePicker(Platform.OS === 'ios');
     }
   };
 
@@ -42,7 +42,6 @@ export default function Prescription() {
       Alert.alert('Error', 'Please fill all fields');
       return;
     }
-
     try {
       await addDoc(collection(db, 'prescriptions'), {
         title,
@@ -68,36 +67,41 @@ export default function Prescription() {
     }
   };
 
+  function renderDatePicker(value, type) {
+    const platformPicker = (
+      <DateTimePicker
+        value={value}
+        mode="date"
+        display="default"
+        onChange={(event, selectedDate) => handleDateChange(event, selectedDate, type)}
+      />
+    );
+
+    const webPicker = (
+      <DatePicker
+        selected={value}
+        onChange={date => handleDateChange(null, date, type)}
+        dateFormat="MMMM d, yyyy"
+      />
+    );
+
+    return Platform.OS === 'web' ? webPicker : platformPicker;
+  }
+
   return (
     <View style={styles.container}>
       <TextInput style={styles.input} placeholder="Title" value={title} onChangeText={setTitle} />
       <TextInput style={styles.input} placeholder="Description" value={description} onChangeText={setDescription} />
 
-      <TouchableOpacity style={styles.button} onPress={() => setShowStartDatePicker(true)}>
+      <TouchableOpacity style={styles.button} onPress={() => setShowDatePicker(prev => ({ ...prev, start: true }))}>
         <Text style={styles.buttonText}>Set Start Date</Text>
       </TouchableOpacity>
-      {showStartDatePicker && (
-        <DateTimePicker
-          testID="startDatePicker"
-          value={startDate}
-          mode="date"
-          display="default"
-          onChange={(event, selectedDate) => handleDateChange(event, selectedDate, 'start')}
-        />
-      )}
+      {showDatePicker.start && renderDatePicker(startDate, 'start')}
 
-      <TouchableOpacity style={styles.button} onPress={() => setShowEndDatePicker(true)}>
+      <TouchableOpacity style={styles.button} onPress={() => setShowDatePicker(prev => ({ ...prev, end: true }))}>
         <Text style={styles.buttonText}>Set End Date</Text>
       </TouchableOpacity>
-      {showEndDatePicker && (
-        <DateTimePicker
-          testID="endDatePicker"
-          value={endDate}
-          mode="date"
-          display="default"
-          onChange={(event, selectedDate) => handleDateChange(event, selectedDate, 'end')}
-        />
-      )}
+      {showDatePicker.end && renderDatePicker(endDate, 'end')}
 
       <TouchableOpacity style={styles.button} onPress={handleAddPrescription}>
         <Text style={styles.buttonText}>Add Prescription</Text>
@@ -106,11 +110,11 @@ export default function Prescription() {
       {prescriptions.map((prescription) => (
         <View key={prescription.id} style={styles.prescriptionContainer}>
           <Text style={styles.prescriptionTitle}>{prescription.title}</Text>
-          <Text style={styles.prescriptionDate}>{`Start: ${prescription.startDate}`}</Text>
-          <Text style={styles.prescriptionDate}>{`End: ${prescription.endDate}`}</Text>
+          <Text style={styles.prescriptionDate}>{`Start: ${new Date(prescription.startDate).toLocaleDateString()}`}</Text>
+          <Text style={styles.prescriptionDate}>{`End: ${new Date(prescription.endDate).toLocaleDateString()}`}</Text>
           <Text style={styles.prescriptionDescription}>{prescription.description}</Text>
           <TouchableOpacity style={styles.deleteButton} onPress={() => handleDeletePrescription(prescription.id)}>
-            <Text style={styles.buttonText}>Delete</Text>
+            <Text style={styles.buttonText}>supprimer</Text>
           </TouchableOpacity>
         </View>
       ))}

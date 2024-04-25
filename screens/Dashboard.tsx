@@ -1,14 +1,15 @@
-import React, { useState, useEffect } from "react";
-import { StyleSheet, Text, View, TouchableOpacity, Alert } from "react-native";
+import { collection, doc, getDoc, getDocs } from "firebase/firestore";
+import React, { useEffect, useState } from "react";
+import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Colors from "../constants/Colors";
 import { auth, db } from "../firebase/firebase";
-import { collection, doc, getDoc, getDocs } from "firebase/firestore";
 
 export default function Dashboard({ navigation }: { navigation: any }) {
   const [userInfo, setUserInfo] = useState<any | undefined>(null);
   const [userData,setUserData]=useState<any | undefined>(null);
 
   const handleSignout = async () => {
+    if(confirm("vous voulez vous deconnecter?"))
     await auth.signOut();
   };
 
@@ -81,7 +82,7 @@ useEffect(() => {
         </TouchableOpacity>
         </View>
       <View>
-        <TouchableOpacity style={styles.button} onPress={Modal}>
+        <TouchableOpacity style={styles.button} onPress={handleSignout}>
           <Text style={{ color: Colors.white, fontSize: 20 }}>Déconnexion</Text>
         </TouchableOpacity>
       </View>
