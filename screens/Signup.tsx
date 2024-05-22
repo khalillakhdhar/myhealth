@@ -1,18 +1,18 @@
-import {
-  StyleSheet,
-  Text,
-  View,
-  TouchableOpacity,
-  TextInput,
-  Platform,
-  Dimensions,
-  KeyboardAvoidingView,
-} from "react-native";
-import React, { useState } from "react";
-import Colors from "../constants/Colors";
-import { auth, db } from "../firebase/firebase";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
+import React, { useState } from "react";
+import {
+  Dimensions,
+  KeyboardAvoidingView,
+  Platform,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import Colors from "../constants/Colors";
+import { auth, db } from "../firebase/firebase";
 
 const { width, height } = Dimensions.get("window");
 let top;
@@ -27,6 +27,8 @@ export default function Signup({ navigation }: { navigation: any }) {
   const [password, setPassword] = useState<any>("");
   const [username, setUsername] = useState<string>("");
   const [phone, setPhone] = useState<number | string>("");
+  const [sexe, setSexe] = useState<string>("");
+  const [age, setAge] = useState<number | string>("");
   const [loading, setLoading] = useState<boolean>(false);
 
   const handleSignup = async () => {
@@ -39,6 +41,8 @@ export default function Signup({ navigation }: { navigation: any }) {
           Name: username,
           Email: email,
           PhoneNumber: phone,
+          Sexe: sexe,
+          Age: age,
           CreatedAt: new Date().toUTCString(),
         });
       })
@@ -97,6 +101,27 @@ export default function Signup({ navigation }: { navigation: any }) {
             onChangeText={(text) => setPassword(text)}
           />
         </View>
+        {/* sexe et age */}
+        <View style={styles.emailContainer}>
+          <Text style={styles.emailText}>Sexe</Text>
+          <TextInput
+            style={styles.emailInput}
+            placeholder="Votre sexe"
+            value={sexe}
+            onChangeText={(text) => setSexe(text)}
+          />
+        </View>
+        <View style={styles.emailContainer}>
+          <Text style={styles.emailText}>Age</Text>
+          <TextInput
+            style={styles.emailInput}
+            placeholder="Votre age"
+            value={age?.toString()}
+            keyboardType="numeric"
+            onChangeText={(text) => setAge(text)}
+          />
+        </View>
+
         {/* Forgot Password */}
 
         {/* Login Button */}

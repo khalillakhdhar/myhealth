@@ -1,4 +1,5 @@
 import { signInWithEmailAndPassword } from "firebase/auth";
+import { doc, getDoc } from "firebase/firestore";
 import React, { useState } from "react";
 import {
   Dimensions,
@@ -9,8 +10,10 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useDispatch } from 'react-redux';
 import Colors from "../constants/Colors";
-import { auth } from "../firebase/firebase";
+import { auth, db } from '../firebase/firebase';
+import { setUser } from '../redux/userSlice';
 
 const { width, height } = Dimensions.get("window");
 let top;
@@ -24,19 +27,31 @@ export default function Login({ navigation }: { navigation: any }) {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<any>("");
   const [loading, setLoading] = useState<boolean>(false);
+  const dispatch = useDispatch();
 
   const handleSignin = async () => {
     setLoading(true);
-    await
-    signInWithEmailAndPassword(auth, email.trim(), password)
-      .then((userCredential) => {
+    await signInWithEmailAndPassword(auth, email.trim(), password)
+      .then(async (userCredential) => {
         const user = userCredential.user;
+
+        // Récupérer les informations utilisateur depuis Firestore
+        const userDoc = await getDoc(doc(db, "users", user.uid));
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          dispatch(setUser({
+            email: user.email,
+            uid: user.uid,
+            name: userData.name,
+            age: userData.age,
+            sex: userData.sex,
+          }));
+        }
         setLoading(false);
-        //ocalStorage.setItem("user", JSON.stringify(user))
-      //  alert("connexion réuissi :)");
       })
       .catch((err: any) => {
-        alert(err.meassage);
+        alert(err.message);
+        setLoading(false);
       });
   };
 
@@ -47,7 +62,6 @@ export default function Login({ navigation }: { navigation: any }) {
       </View>
 
       <View style={styles.loginContainer}>
-        {/* Email */}
         <View style={styles.emailContainer}>
           <Text style={styles.emailText}>Email</Text>
           <TextInput
@@ -57,9 +71,8 @@ export default function Login({ navigation }: { navigation: any }) {
             onChangeText={(text) => setEmail(text)}
           />
         </View>
-        {/* Password */}
         <View style={styles.passwordContainer}>
-          <Text style={styles.passwordText}>mot de passe</Text>
+          <Text style={styles.passwordText}>Mot de passe</Text>
           <TextInput
             style={styles.passwordInput}
             placeholder="Votre mot de passe"
@@ -68,19 +81,15 @@ export default function Login({ navigation }: { navigation: any }) {
             onChangeText={(text) => setPassword(text)}
           />
         </View>
-        {/* Forgot Password */}
         <View style={styles.forgotContainer}>
           <TouchableOpacity onPress={() => navigation.push("Forgot")}>
             <Text style={styles.forgotText}>Mot de passe oublié?</Text>
           </TouchableOpacity>
         </View>
-        {/* Login Button */}
         <View style={styles.loginButton}>
           <TouchableOpacity onPress={handleSignin}>
             <Text style={styles.loginButtonText}>
-              {
-                loading ? "Loading" : "Login"
-              }
+              {loading ? "Chargement..." : "Connexion"}
             </Text>
           </TouchableOpacity>
         </View>

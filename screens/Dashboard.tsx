@@ -65,10 +65,18 @@ useEffect(() => {
       <Text style={{ fontSize: 25 }}>Bienvenue à la supervision ! </Text>
       <View>
         <Text style={styles.userInfo}>{userInfo ? `Email: ${userInfo.email}` : ""}</Text>
+        <Text style={styles.userInfo}>rythme actuel:</Text>
+        <iframe seamless width="80%"  height="150" src="https://stem.ubidots.com/app/dashboards/public/widget/aDa2T6ZA5ms6ODO-1NJtYXkZ7kK5snke1ElFo36TxIU?embed=true"></iframe>
+
+      </View>
+      <View>
+        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('UpdateProfile')}>
+          <Text style={{ color: Colors.white, fontSize: 20 }}>Profile</Text>
+        </TouchableOpacity>
       </View>
       <View>
         <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Profile')}>
-          <Text style={{ color: Colors.white, fontSize: 20 }}>Profile</Text>
+          <Text style={{ color: Colors.white, fontSize: 20 }}>Suivi</Text>
         </TouchableOpacity>
       </View>
       <View>
@@ -82,6 +90,7 @@ useEffect(() => {
         </TouchableOpacity>
         </View>
       <View>
+        
         <TouchableOpacity style={styles.button} onPress={handleSignout}>
           <Text style={{ color: Colors.white, fontSize: 20 }}>Déconnexion</Text>
         </TouchableOpacity>
@@ -105,6 +114,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     width: 200,
     marginTop: 30,
+  },
+  // center iframe
+  iframe: {
+    display: "flex",
+    margin: "auto",
   },
   userInfo: {
     fontSize: 18,

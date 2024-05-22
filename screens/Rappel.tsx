@@ -1,10 +1,11 @@
+import { addDoc, collection, deleteDoc, doc, onSnapshot, orderBy, query, where } from 'firebase/firestore';
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, Alert } from 'react-native';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { addDoc, collection, deleteDoc, doc, onSnapshot, orderBy, query, where } from 'firebase/firestore';
-import { auth, db } from '../firebase/firebase'; // Ensure the paths are correct
+import { Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import Colors from '../constants/Colors';
+import { auth, db } from '../firebase/firebase'; // Ensure the paths are correct
+// Même importations et code que précédemment
 
 export default function Rappel() {
   const [rappels, setRappels] = useState([]);
@@ -12,6 +13,7 @@ export default function Rappel() {
   const [newRappelStartDate, setNewRappelStartDate] = useState(new Date());
   const [newRappelEndDate, setNewRappelEndDate] = useState(new Date());
   const [newRappelDescription, setNewRappelDescription] = useState('');
+  const [showConfirmation, setShowConfirmation] = useState(false);
 
   useEffect(() => {
     if (auth.currentUser) {
@@ -23,7 +25,15 @@ export default function Rappel() {
       return () => unsubscribe();
     }
   }, []);
-
+  const handleDeleteRappel = async (rappelId) => {
+    try {
+      await deleteDoc(doc(db, 'rappels', rappelId));
+    } catch (error) {
+      console.error('Error deleting rappel:', error);
+      Alert.alert('Error', 'Failed to delete rappel');
+    }
+  };
+  
   const handleAddRappel = async () => {
     if (!newRappelTitle || !newRappelStartDate || !newRappelEndDate) {
       Alert.alert('Error', 'Please fill all fields');
@@ -41,13 +51,14 @@ export default function Rappel() {
       setNewRappelStartDate(new Date());
       setNewRappelEndDate(new Date());
       setNewRappelDescription('');
+      setShowConfirmation(true);
     } catch (error) {
       console.error('Error adding rappel:', error);
       Alert.alert('Error', 'Failed to add rappel');
     }
   };
 
-  // Similarly update handleDeleteRappel and other methods as necessary
+  // Code pour la suppression des rappels
 
   return (
     <View style={styles.container}>
@@ -63,10 +74,25 @@ export default function Rappel() {
         <Text style={styles.buttonText}>Add Rappel</Text>
       </TouchableOpacity>
 
-      {/* Display rappels here */}
+      {showConfirmation && (
+        <Text style={{ color: 'green', fontSize: 18, marginTop: 10 }}>Rappel ajouté avec succès!</Text>
+      )}
+
+      {rappels.map((rappel) => (
+        <View key={rappel.id} style={styles.rappelContainer}>
+          <Text style={styles.rappelTitle}>{rappel.title}</Text>
+          <Text style={styles.rappelDate}>Du {new Date(rappel.startDate).toLocaleDateString()} au {new Date(rappel.endDate).toLocaleDateString()}</Text>
+          <Text style={styles.rappelDescription}>{rappel.description}</Text>
+          <TouchableOpacity style={styles.deleteButton} onPress={() => handleDeleteRappel(rappel.id)}>
+            <Text style={styles.buttonText}>Delete</Text>
+          </TouchableOpacity>
+        </View>
+      ))}
     </View>
   );
 }
+
+// styles object remains unchanged
 
 // styles object remains unchanged
 
