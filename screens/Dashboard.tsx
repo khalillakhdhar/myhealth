@@ -65,8 +65,6 @@ useEffect(() => {
       <Text style={{ fontSize: 25 }}>Bienvenue à la supervision ! </Text>
       <View>
         <Text style={styles.userInfo}>{userInfo ? `Email: ${userInfo.email}` : ""}</Text>
-        <Text style={styles.userInfo}>rythme actuel:</Text>
-        <iframe seamless width="80%"  height="150" src="https://stem.ubidots.com/app/dashboards/public/widget/aDa2T6ZA5ms6ODO-1NJtYXkZ7kK5snke1ElFo36TxIU?embed=true"></iframe>
 
       </View>
       <View>
