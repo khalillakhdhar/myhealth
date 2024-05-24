@@ -6,6 +6,7 @@ import { auth, db } from '../firebase/firebase';
 const { width, height } = Dimensions.get('window');
 
 export default function UpdateProfile({ navigation }: { navigation: any }) {
+    const [userId, setUserId] = useState<string>('');
   const [username, setUsername] = useState<string>('');
   const [email, setEmail] = useState<string>('');
   const [phone, setPhone] = useState<string | number>('');
@@ -15,9 +16,11 @@ export default function UpdateProfile({ navigation }: { navigation: any }) {
       const user = auth.currentUser;
       if (user) {
         const userRef = doc(db, 'users', user.uid);
+
         const userDoc = await getDoc(userRef);
         if (userDoc.exists()) {
           const userData = userDoc.data();
+          setUserId(user.uid);
           setUsername(userData.Name);
           setEmail(userData.Email);
           setPhone(userData.PhoneNumber);
@@ -47,6 +50,9 @@ export default function UpdateProfile({ navigation }: { navigation: any }) {
   return (
     <View style={styles.container}>
       <Text style={styles.headerText}>Update Profile</Text>
+
+      <Text style={styles.headerText}> Votre identifiant secret: <br></br> {userId}</Text>
+        <Text style={styles.headerText}> ne donner ce code qu'au superviseurs de votre cas</Text>
 
       <View style={styles.inputContainer}>
         <Text style={styles.labelText}>Name</Text>
