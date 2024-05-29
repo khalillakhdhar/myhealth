@@ -73,6 +73,11 @@ useEffect(() => {
         </TouchableOpacity>
       </View>
       <View>
+        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('DoctorSearch')}>
+          <Text style={{ color: Colors.white, fontSize: 20 }}>Cherchez un docteur</Text>
+        </TouchableOpacity>
+      </View>
+      <View>
         <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Profile')}>
           <Text style={{ color: Colors.white, fontSize: 20 }}>Suivi</Text>
         </TouchableOpacity>

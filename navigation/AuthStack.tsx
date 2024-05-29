@@ -1,6 +1,7 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
 import Dashboard from "../screens/Dashboard";
+import DoctorSearch from "../screens/DoctorSearch";
 import Prescription from "../screens/Prescription";
 import Profile from "../screens/Profile";
 import Rappel from "../screens/Rappel";
@@ -35,6 +36,13 @@ export default function AuthStack() {
       <Stack.Screen
         name="Rappel"
         component={Rappel}
+        options={{
+          headerShown: true,
+        }}
+      ></Stack.Screen>
+      <Stack.Screen
+        name="DoctorSearch"
+         component={DoctorSearch}
         options={{
           headerShown: true,
         }}
