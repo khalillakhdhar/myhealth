@@ -74,7 +74,7 @@ useEffect(() => {
       </View>
       <View>
         <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('DoctorSearch')}>
-          <Text style={{ color: Colors.white, fontSize: 20 }}>Cherchez un docteur</Text>
+          <Text style={{ color: Colors.white, fontSize: 16 }}>Cherchez  docteur</Text>
         </TouchableOpacity>
       </View>
       <View>

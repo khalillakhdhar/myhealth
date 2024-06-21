@@ -51,7 +51,6 @@ export default function UpdateProfile({ navigation }: { navigation: any }) {
     <View style={styles.container}>
       <Text style={styles.headerText}>Update Profile</Text>
 
-      <Text style={styles.headerText}> Votre identifiant secret: <br></br> {userId}</Text>
         <Text style={styles.headerText}> ne donner ce code qu'au superviseurs de votre cas</Text>
 
       <View style={styles.inputContainer}>
