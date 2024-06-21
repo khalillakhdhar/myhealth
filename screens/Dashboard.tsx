@@ -6,11 +6,10 @@ import { auth, db } from "../firebase/firebase";
 
 export default function Dashboard({ navigation }: { navigation: any }) {
   const [userInfo, setUserInfo] = useState<any | undefined>(null);
-  const [userData,setUserData]=useState<any | undefined>(null);
+  const [userData, setUserData] = useState<any | undefined>(null);
 
   const handleSignout = async () => {
-    if(confirm("vous voulez vous deconnecter?"))
-    await auth.signOut();
+    if (confirm("vous voulez vous deconnecter?")) await auth.signOut();
   };
 
   const Modal = () => {
@@ -24,7 +23,6 @@ export default function Dashboard({ navigation }: { navigation: any }) {
   };
 
   const getData = async () => {
-
     const docRef = doc(db, "users", "info");
     const docSnap = await getDoc(docRef);
     if (docSnap.exists()) {
@@ -33,39 +31,32 @@ export default function Dashboard({ navigation }: { navigation: any }) {
     } else {
       console.log("aucun document!");
     }
-    // read data from firestore database user
-
   };
-// get data with email from firestore database users collection
-const readDataFromFirestore = async () => {
-  const usersCollection = collection(db, "users");
-  const usersSnapshot = await getDocs(usersCollection);
-  usersSnapshot.forEach((doc) => {
-    if (doc.data().email === auth.currentUser?.email) {
-      console.log("Document data:", doc.data());
-      setUserData(doc.data());
-      setUserInfo(doc.data());
-    }
-  });
-};
 
-useEffect(() => {
-  getData();
-  setUserInfo(auth.currentUser);
-  readDataFromFirestore();
-}, []);
+  // get data with email from firestore database users collection
+  const readDataFromFirestore = async () => {
+    const usersCollection = collection(db, "users");
+    const usersSnapshot = await getDocs(usersCollection);
+    usersSnapshot.forEach((doc) => {
+      if (doc.data().email === auth.currentUser?.email) {
+        console.log("Document data:", doc.data());
+        setUserData(doc.data());
+        setUserInfo(doc.data());
+      }
+    });
+  };
 
-
-
-
-
+  useEffect(() => {
+    getData();
+    setUserInfo(auth.currentUser);
+    readDataFromFirestore();
+  }, []);
 
   return (
     <View style={styles.container}>
       <Text style={{ fontSize: 25 }}>Bienvenue à la supervision ! </Text>
       <View>
         <Text style={styles.userInfo}>{userInfo ? `Email: ${userInfo.email}` : ""}</Text>
-
       </View>
       <View>
         <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('UpdateProfile')}>
@@ -74,7 +65,7 @@ useEffect(() => {
       </View>
       <View>
         <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('DoctorSearch')}>
-          <Text style={{ color: Colors.white, fontSize: 16 }}>Cherchez  docteur</Text>
+          <Text style={{ color: Colors.white, fontSize: 16 }}>Cherchez géolocalisation</Text>
         </TouchableOpacity>
       </View>
       <View>
@@ -91,9 +82,23 @@ useEffect(() => {
         <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Prescription')}>
           <Text style={{ color: Colors.white, fontSize: 20 }}>Prescription</Text>
         </TouchableOpacity>
-        </View>
+      </View>
       <View>
-        
+        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('DoctorList')}>
+          <Text style={{ color: Colors.white, fontSize: 20 }}>Liste des médecins</Text>
+        </TouchableOpacity>
+      </View>
+      <View>
+        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Chat')}>
+          <Text style={{ color: Colors.white, fontSize: 20 }}>Chat</Text>
+        </TouchableOpacity>
+      </View>
+      <View>
+        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Appointment')}>
+          <Text style={{ color: Colors.white, fontSize: 20 }}>Rendez-vous</Text>
+        </TouchableOpacity>
+      </View>
+      <View>
         <TouchableOpacity style={styles.button} onPress={handleSignout}>
           <Text style={{ color: Colors.white, fontSize: 20 }}>Déconnexion</Text>
         </TouchableOpacity>
@@ -117,11 +122,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     width: 200,
     marginTop: 30,
-  },
-  // center iframe
-  iframe: {
-    display: "flex",
-    margin: "auto",
   },
   userInfo: {
     fontSize: 18,

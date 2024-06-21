@@ -1,6 +1,8 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-
+import Appointment from "../screens/Appointment";
+import Chat from "../screens/Chat";
 import Dashboard from "../screens/Dashboard";
+import DoctorList from "../screens/DoctorList";
 import DoctorSearch from "../screens/DoctorSearch";
 import Prescription from "../screens/Prescription";
 import Profile from "../screens/Profile";
@@ -32,21 +34,21 @@ export default function AuthStack() {
         options={{
           headerShown: true,
         }}
-      ></Stack.Screen>
+      />
       <Stack.Screen
         name="Rappel"
         component={Rappel}
         options={{
           headerShown: true,
         }}
-      ></Stack.Screen>
+      />
       <Stack.Screen
         name="DoctorSearch"
-         component={DoctorSearch}
+        component={DoctorSearch}
         options={{
           headerShown: true,
         }}
-      ></Stack.Screen>
+      />
       <Stack.Screen
         name="UpdateProfile"
         component={UpdateProfile}
@@ -55,12 +57,26 @@ export default function AuthStack() {
         }}
       />
       <Stack.Screen
-        name="Prescriptions"
-        component={Prescription}
+        name="DoctorList"
+        component={DoctorList}
         options={{
           headerShown: true,
         }}
-      ></Stack.Screen>
+      />
+      <Stack.Screen
+        name="Chat"
+        component={Chat}
+        options={{
+          headerShown: true,
+        }}
+      />
+      <Stack.Screen
+        name="Appointment"
+        component={Appointment}
+        options={{
+          headerShown: true,
+        }}
+      />
     </Stack.Navigator>
   );
 }

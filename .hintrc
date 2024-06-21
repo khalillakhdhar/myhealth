@@ -8,6 +8,7 @@
       {
         "frame-title": "off"
       }
-    ]
+    ],
+    "typescript-config/strict": "off"
   }
 }

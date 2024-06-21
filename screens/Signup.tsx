@@ -2,6 +2,7 @@ import { createUserWithEmailAndPassword } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
 import React, { useState } from "react";
 import {
+  Alert,
   Dimensions,
   KeyboardAvoidingView,
   Platform,
@@ -24,14 +25,67 @@ if (Platform.OS === "ios") {
 
 export default function Signup({ navigation }: { navigation: any }) {
   const [email, setEmail] = useState<string>("");
-  const [password, setPassword] = useState<any>("");
+  const [password, setPassword] = useState<string>("");
   const [username, setUsername] = useState<string>("");
-  const [phone, setPhone] = useState<number | string>("");
+  const [phone, setPhone] = useState<string>("");
   const [sexe, setSexe] = useState<string>("");
-  const [age, setAge] = useState<number | string>("");
+  const [age, setAge] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
+  const [errors, setErrors] = useState<any>({});
+
+  const validate = () => {
+    let valid = true;
+    let errors: any = {};
+
+    if (!username) {
+      errors.username = "Nom d'utilisateur est requis";
+      valid = false;
+    }
+    if (!email) {
+      errors.email = "Email est requis";
+      valid = false;
+    } else if (!/\S+@\S+\.\S+/.test(email)) {
+      errors.email = "Email n'est pas valide";
+      valid = false;
+    }
+    if (!phone) {
+      errors.phone = "Numéro de téléphone est requis";
+      valid = false;
+    } else if (!/^\d+$/.test(phone)) {
+      errors.phone = "Numéro de téléphone n'est pas valide";
+      valid = false;
+    }
+    if (!password) {
+      errors.password = "Mot de passe est requis";
+      valid = false;
+    } else if (password.length < 6) {
+      errors.password = "Le mot de passe doit contenir au moins 6 caractères";
+      valid = false;
+    }
+    if (!sexe) {
+      errors.sexe = "Sexe est requis";
+      valid = false;
+    } else if (sexe !== "Homme" && sexe !== "Femme") {
+      errors.sexe = "Sexe doit être 'Homme' ou 'Femme'";
+      valid = false;
+    }
+    if (!age) {
+      errors.age = "Age est requis";
+      valid = false;
+    } else if (!/^\d+$/.test(age)) {
+      errors.age = "Age doit être un nombre";
+      valid = false;
+    }
+
+    setErrors(errors);
+    return valid;
+  };
 
   const handleSignup = async () => {
+    if (!validate()) {
+      return;
+    }
+
     setLoading(true);
     await createUserWithEmailAndPassword(auth, email.trim(), password)
       .then((userCredential) => {
@@ -45,10 +99,11 @@ export default function Signup({ navigation }: { navigation: any }) {
           Age: age,
           CreatedAt: new Date().toUTCString(),
         });
+        Alert.alert("Succès", "Compte créé avec succès 🎉");
       })
-      .then(() => alert("compte crée avec succées 🎉"))
       .catch((err: any) => {
-        alert(err.meassage);
+        setLoading(false);
+        Alert.alert("Erreur", err.message);
       });
   };
 
@@ -68,6 +123,7 @@ export default function Signup({ navigation }: { navigation: any }) {
             value={username}
             onChangeText={(text) => setUsername(text)}
           />
+          {errors.username && <Text style={styles.errorText}>{errors.username}</Text>}
         </View>
         {/* Email */}
         <View style={styles.emailContainer}>
@@ -77,7 +133,9 @@ export default function Signup({ navigation }: { navigation: any }) {
             placeholder="Votre email"
             value={email}
             onChangeText={(text) => setEmail(text)}
+            keyboardType="email-address"
           />
+          {errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
         </View>
         {/* Phone Number */}
         <View style={styles.emailContainer}>
@@ -85,10 +143,11 @@ export default function Signup({ navigation }: { navigation: any }) {
           <TextInput
             style={styles.emailInput}
             placeholder="Votre numéro ici"
-            value={phone?.toString()}
-            keyboardType="numeric"
+            value={phone}
+            keyboardType="phone-pad"
             onChangeText={(text) => setPhone(text)}
           />
+          {errors.phone && <Text style={styles.errorText}>{errors.phone}</Text>}
         </View>
         {/* Password */}
         <View style={styles.passwordContainer}>
@@ -100,31 +159,32 @@ export default function Signup({ navigation }: { navigation: any }) {
             secureTextEntry={true}
             onChangeText={(text) => setPassword(text)}
           />
+          {errors.password && <Text style={styles.errorText}>{errors.password}</Text>}
         </View>
-        {/* sexe et age */}
+        {/* Sexe */}
         <View style={styles.emailContainer}>
           <Text style={styles.emailText}>Sexe</Text>
           <TextInput
             style={styles.emailInput}
-            placeholder="Votre sexe"
+            placeholder="Votre sexe (Homme/Femme)"
             value={sexe}
             onChangeText={(text) => setSexe(text)}
           />
+          {errors.sexe && <Text style={styles.errorText}>{errors.sexe}</Text>}
         </View>
+        {/* Age */}
         <View style={styles.emailContainer}>
           <Text style={styles.emailText}>Age</Text>
           <TextInput
             style={styles.emailInput}
-            placeholder="Votre age"
-            value={age?.toString()}
+            placeholder="Votre âge"
+            value={age}
             keyboardType="numeric"
             onChangeText={(text) => setAge(text)}
           />
+          {errors.age && <Text style={styles.errorText}>{errors.age}</Text>}
         </View>
 
-        {/* Forgot Password */}
-
-        {/* Login Button */}
         <View style={styles.loginButton}>
           <TouchableOpacity onPress={handleSignup}>
             <Text style={styles.loginButtonText}>
@@ -149,15 +209,6 @@ const styles = StyleSheet.create({
     flex: 1,
     marginHorizontal: 15,
     marginTop: height * 0.05,
-  },
-  arrowContainer: {
-    width: 40,
-    height: 40,
-    borderTopLeftRadius: 8,
-    borderBottomRightRadius: 8,
-    backgroundColor: Colors.primary,
-    justifyContent: "center",
-    alignItems: "center",
   },
   loginHeader: {
     marginTop: 20,
@@ -203,15 +254,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: Colors.light,
   },
-  forgotContainer: {
-    marginTop: 20,
-    alignItems: "flex-end",
-  },
-  forgotText: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: Colors.primary,
-  },
   loginButton: {
     marginTop: 20,
     width: "100%",
@@ -242,5 +284,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "500",
     marginRight: 5,
+  },
+  errorText: {
+    color: "red",
+    fontSize: 12,
+    marginTop: 5,
   },
 });
