@@ -2,13 +2,13 @@ import { useNavigation } from "@react-navigation/native";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
 import {
-    ActivityIndicator,
-    FlatList,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  FlatList,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import Colors from "../constants/Colors";
 import { db } from "../firebase/firebase";
@@ -67,6 +67,18 @@ export default function DoctorList() {
             <Text style={styles.phone}>{item.PhoneNumber}</Text>
             <Text style={styles.speciality}>{item.Speciality}</Text>
             <View style={styles.buttonGroup}>
+            <TouchableOpacity
+                style={styles.button}
+                
+              >
+               <a style={styles.buttonText} href='https://appcall.daily.co/visio'>joindre la visio</a>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.button}
+                onPress={() => navigation.navigate("DoctorSearch", { doctorName: item.Name })}
+              >
+                <Text style={styles.buttonText}>Afficher</Text>
+              </TouchableOpacity>
               <TouchableOpacity
                 style={styles.button}
                 onPress={() => navigation.navigate("Chat", { doctorId: item.id } )}
@@ -79,6 +91,7 @@ export default function DoctorList() {
               >
                 <Text style={styles.buttonText}>Rendez-vous</Text>
               </TouchableOpacity>
+             
             </View>
           </View>
         )}

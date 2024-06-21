@@ -71,11 +71,11 @@ export default function Rappel() {
       <DatePicker selected={newRappelEndDate} style={styles.input}  onChange={date => setNewRappelEndDate(date)} />
 
       <TouchableOpacity style={styles.button} onPress={handleAddRappel}>
-        <Text style={styles.buttonText}>Add Rappel</Text>
+        <Text style={styles.buttonText}>Ajout compte rendu</Text>
       </TouchableOpacity>
 
       {showConfirmation && (
-        <Text style={{ color: 'green', fontSize: 18, marginTop: 10 }}>Rappel ajouté avec succès!</Text>
+        <Text style={{ color: 'green', fontSize: 18, marginTop: 10 }}>Compte rendu ajouté avec succès!</Text>
       )}
 
       {rappels.map((rappel) => (

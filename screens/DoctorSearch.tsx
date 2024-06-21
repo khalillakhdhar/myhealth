@@ -1,3 +1,4 @@
+import { useRoute } from '@react-navigation/native';
 import L from 'leaflet';
 import 'leaflet-routing-machine';
 import 'leaflet-routing-machine/dist/leaflet-routing-machine.css';
@@ -6,6 +7,9 @@ import React, { useEffect } from 'react';
 import { View } from 'react-native';
 
 const DoctorSearch = () => {
+  const route = useRoute();
+  const { doctorName } = route.params;
+
   useEffect(() => {
     const doctorIconUrl = 'https://firebasestorage.googleapis.com/v0/b/medical-dd248.appspot.com/o/doctor.jpg?alt=media&token=ffe4d0a2-e964-4bbc-a530-2c70435a300b';
     const userIconUrl = 'https://firebasestorage.googleapis.com/v0/b/medical-dd248.appspot.com/o/user.png?alt=media&token=4c5bb8e2-48ed-48a3-ac1d-fb1771e8c363';
@@ -26,7 +30,7 @@ const DoctorSearch = () => {
       popupAnchor: [0, -32]
     });
 
-    // Icône par défaut pour les docteurs
+    // Icône personnalisée pour la position du docteur
     const doctorIcon = L.icon({
       iconUrl: doctorIconUrl,
       iconSize: [32, 32],
@@ -35,6 +39,16 @@ const DoctorSearch = () => {
     });
 
     let userLocation;
+
+    // Fonction pour calculer une position légèrement décalée
+    const getOffsetLocation = (lat, lon, offset) => {
+      const earthRadius = 6378137; // Rayon de la Terre en mètres
+      const dLat = offset / earthRadius;
+      const dLon = offset / (earthRadius * Math.cos(Math.PI * lat / 180));
+      const newLat = lat + dLat * (180 / Math.PI);
+      const newLon = lon + dLon * (180 / Math.PI);
+      return [newLat, newLon];
+    };
 
     // Obtenir la position actuelle de l'utilisateur
     if (navigator.geolocation) {
@@ -47,35 +61,23 @@ const DoctorSearch = () => {
           .bindPopup('Vous êtes ici')
           .openPopup();
 
-        // Liste des docteurs et cliniques, y compris les cabinets privés
-        const doctors = [
-          { name: 'Hopital Régional de Gabés Mohamed Ben Sassi', lat: 33.8815, lon: 10.0982 },
-          { name: 'Institut supérieur des sciences infirmiéres de Gabes', lat: 33.8920, lon: 10.0975 },
-          { name: 'Clinic Mtorrech', lat: 33.8900, lon: 10.1000 },
-          { name: 'Les Urgences - Hôpital de Gabès', lat: 33.8840, lon: 10.1020 },
-          { name: 'Clinique Elmanara', lat: 33.8860, lon: 10.0940 },
-          { name: 'المستشفى العسكري بقابس', lat: 33.8790, lon: 10.0950 },
-          { name: 'Cabinet Dr. Ali', lat: 33.8830, lon: 10.0930 },
-          { name: 'Cabinet Dr. Fatima', lat: 33.8850, lon: 10.0960 }
-        ];
+        // Calculer une position décalée pour le docteur (par exemple, 100 mètres de distance)
+        const doctorLocation = getOffsetLocation(userLocation[0], userLocation[1], 100);
 
-        // Ajouter les marqueurs sur la carte et les événements onclick
-        doctors.forEach(doctor => {
-          const marker = L.marker([doctor.lat, doctor.lon], { icon: doctorIcon }).addTo(map)
-            .bindPopup(`<b>${doctor.name}</b>`);
+        // Ajouter un marqueur pour le docteur fictif
+        L.marker(doctorLocation, { icon: doctorIcon }).addTo(map)
+          .bindPopup(`<b>${doctorName}</b>`)
+          .openPopup();
 
-          marker.on('click', () => {
-            if (userLocation) {
-              L.Routing.control({
-                waypoints: [
-                  L.latLng(userLocation[0], userLocation[1]),
-                  L.latLng(doctor.lat, doctor.lon)
-                ],
-                routeWhileDragging: true
-              }).addTo(map);
-            }
-          });
-        });
+        // Dessiner la ligne de route entre l'utilisateur et le docteur fictif
+        L.Routing.control({
+          waypoints: [
+            L.latLng(userLocation[0], userLocation[1]),
+            L.latLng(doctorLocation[0], doctorLocation[1])
+          ],
+          routeWhileDragging: true
+        }).addTo(map);
+
       }, error => {
         console.error("Erreur de géolocalisation : ", error);
         alert('La géolocalisation a échoué.');
@@ -87,7 +89,7 @@ const DoctorSearch = () => {
     } else {
       alert('Votre navigateur ne supporte pas la géolocalisation.');
     }
-  }, []);
+  }, [doctorName]);
 
   return (
     <View style={{ height: '100vh', width: '100%' }}>

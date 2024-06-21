@@ -1,14 +1,23 @@
-import { addDoc, collection, onSnapshot, orderBy, query, where } from "firebase/firestore";
+import { addDoc, collection, doc, getDoc, onSnapshot, orderBy, query, where } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
-import { FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Colors from "../constants/Colors";
 import { auth, db } from "../firebase/firebase";
 
 export default function Appointment({ route }) {
   const { doctorId } = route.params;
-  const [date, setDate] = useState<string>("");
-  const [time, setTime] = useState<string>("");
-  const [appointments, setAppointments] = useState<any[]>([]);
+  const [date, setDate] = useState("");
+  const [time, setTime] = useState("");
+  const [appointments, setAppointments] = useState([]);
+  const [availability, setAvailability] = useState({
+    lundi: { start: "08:00", end: "17:00" },
+    mardi: { start: "08:00", end: "17:00" },
+    mercredi: { start: "08:00", end: "17:00" },
+    jeudi: { start: "08:00", end: "17:00" },
+    vendredi: { start: "08:00", end: "17:00" },
+    samedi: { start: "09:00", end: "13:00" },
+    dimanche: { start: "", end: "" }
+  });
 
   useEffect(() => {
     if (auth.currentUser) {
@@ -31,9 +40,24 @@ export default function Appointment({ route }) {
     }
   }, [doctorId]);
 
+  useEffect(() => {
+    const fetchAvailability = async () => {
+      const docRef = doc(db, "doctor_schedule", doctorId);
+      const docSnap = await getDoc(docRef);
+
+      if (docSnap.exists()) {
+        setAvailability(docSnap.data().workingHours);
+      } else {
+        console.log("No such document!");
+      }
+    };
+
+    fetchAvailability();
+  }, [doctorId]);
+
   const handleSchedule = async () => {
     if (date.trim() === "" || time.trim() === "") {
-      alert("Please enter both date and time.");
+      alert("Veuillez entrer une date et une heure.");
       return;
     }
 
@@ -65,17 +89,31 @@ export default function Appointment({ route }) {
 
   return (
     <View style={styles.container}>
-      <TextInput
+      <View style={styles.availability}>
+        <Text style={styles.title}>Disponibilité du Docteur</Text>
+        <FlatList
+          data={Object.entries(availability)}
+          keyExtractor={([day]) => day}
+          renderItem={({ item: [day, hours] }) => (
+            <View style={styles.availabilityItem}>
+              <Text><strong>{day.charAt(0).toUpperCase() + day.slice(1)}:</strong> {hours.start} - {hours.end}</Text>
+            </View>
+          )}
+        />
+      </View>
+      <input
         style={styles.input}
         placeholder="Date (YYYY-MM-DD)"
         value={date}
-        onChangeText={setDate}
+        type="date"
+        onChange={(event) => setDate(event.target.value)}
       />
-      <TextInput
+      <input
         style={styles.input}
         placeholder="Heure (HH:MM)"
         value={time}
-        onChangeText={setTime}
+        type="time"
+        onChange={(event: React.ChangeEvent<HTMLInputElement>) => setTime(event.target.value)}
       />
       <TouchableOpacity style={styles.button} onPress={handleSchedule}>
         <Text style={styles.buttonText}>Créer un rendez-vous</Text>
@@ -100,6 +138,20 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
   },
+  availability: {
+    marginBottom: 20,
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 10,
+  },
+  availabilityItem: {
+    backgroundColor: "#f9f9f9",
+    padding: 10,
+    borderRadius: 4,
+    marginBottom: 5,
+  },
   input: {
     height: 50,
     borderColor: Colors.light,
@@ -107,17 +159,26 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     paddingLeft: 10,
     marginBottom: 10,
+    width: "100%",
   },
   button: {
     backgroundColor: Colors.primary,
+    color: "white",
     padding: 10,
     borderRadius: 5,
-    alignItems: "center",
+    border: "none",
+    cursor: "pointer",
     marginBottom: 20,
+    width: "100%",
+    textAlign: "center",
   },
   buttonText: {
     color: Colors.white,
     fontSize: 16,
+  },
+  appointmentList: {
+    listStyleType: "none",
+    padding: 0,
   },
   appointmentCard: {
     backgroundColor: Colors.light,

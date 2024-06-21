@@ -63,11 +63,7 @@ export default function Dashboard({ navigation }: { navigation: any }) {
           <Text style={{ color: Colors.white, fontSize: 20 }}>Profile</Text>
         </TouchableOpacity>
       </View>
-      <View>
-        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('DoctorSearch')}>
-          <Text style={{ color: Colors.white, fontSize: 16 }}>Cherchez géolocalisation</Text>
-        </TouchableOpacity>
-      </View>
+    
       <View>
         <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Profile')}>
           <Text style={{ color: Colors.white, fontSize: 20 }}>Suivi</Text>
@@ -88,11 +84,7 @@ export default function Dashboard({ navigation }: { navigation: any }) {
           <Text style={{ color: Colors.white, fontSize: 20 }}>Liste des médecins</Text>
         </TouchableOpacity>
       </View>
-      <View>
-        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Chat')}>
-          <Text style={{ color: Colors.white, fontSize: 20 }}>Chat</Text>
-        </TouchableOpacity>
-      </View>
+     
       <View>
         <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Appointment')}>
           <Text style={{ color: Colors.white, fontSize: 20 }}>Rendez-vous</Text>
